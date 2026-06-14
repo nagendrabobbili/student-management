@@ -1,29 +1,46 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Student Management System</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Student Dashboard</title>
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<div class="container">
+<div class="sidebar">
+    <h2>Dashboard</h2>
+    <button onclick="showAll()">All Students</button>
+</div>
 
-    <h1>Student Management System</h1>
+<div class="main">
 
-    <input type="text" id="name" placeholder="Student Name">
-    <input type="text" id="roll" placeholder="Roll Number">
+    <h1>Student Management Dashboard</h1>
 
-    <button onclick="addStudent()">Add Student</button>
+    <!-- STATS -->
+    <div class="cards">
+        <div class="card">
+            <h3>Total Students</h3>
+            <p id="totalCount">0</p>
+        </div>
+    </div>
+
+    <!-- INPUT FORM -->
+    <div class="form">
+        <input type="text" id="name" placeholder="Student Name">
+        <input type="text" id="roll" placeholder="Roll Number">
+        <button onclick="addStudent()">Add Student</button>
+    </div>
 
     <input type="text" id="search" placeholder="Search student..." onkeyup="searchStudent()">
 
+    <!-- TABLE -->
     <table>
         <thead>
             <tr>
                 <th>Name</th>
                 <th>Roll No</th>
-                <th>Action</th>
+                <th>Actions</th>
             </tr>
         </thead>
 
