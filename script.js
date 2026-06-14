@@ -1,41 +1,85 @@
+let students = JSON.parse(localStorage.getItem("students")) || [];
+
+window.onload = displayStudents;
+
+function saveData(){
+    localStorage.setItem("students", JSON.stringify(students));
+}
+
 function addStudent(){
 
-let name=document.getElementById("name").value;
-
-let roll=document.getElementById("roll").value;
+let name = document.getElementById("name").value;
+let roll = document.getElementById("roll").value;
 
 if(name=="" || roll==""){
-
-alert("Enter all details");
-
-return;
-
+    alert("Enter all details");
+    return;
 }
 
-let table=document.getElementById("tableBody");
+let student = {
+    name: name,
+    roll: roll
+};
 
-let row=table.insertRow();
+students.push(student);
 
-let c1=row.insertCell(0);
-
-let c2=row.insertCell(1);
-
-let c3=row.insertCell(2);
-
-c1.innerHTML=name;
-
-c2.innerHTML=roll;
-
-c3.innerHTML="<button onclick='deleteRow(this)'>Delete</button>";
+saveData();
+displayStudents();
 
 document.getElementById("name").value="";
-
 document.getElementById("roll").value="";
-
 }
 
-function deleteRow(btn){
+function displayStudents(){
 
-btn.parentNode.parentNode.remove();
+let table = document.getElementById("tableBody");
+table.innerHTML = "";
+
+students.forEach((s, index) => {
+
+table.innerHTML += `
+<tr>
+    <td>${s.name}</td>
+    <td>${s.roll}</td>
+    <td>
+        <button onclick="deleteRow(${index})">Delete</button>
+    </td>
+</tr>
+`;
+
+});
+}
+
+function deleteRow(index){
+students.splice(index,1);
+saveData();
+displayStudents();
+}
+
+function searchStudent(){
+
+let value = document.getElementById("search").value.toLowerCase();
+
+let filtered = students.filter(s =>
+    s.name.toLowerCase().includes(value) ||
+    s.roll.toLowerCase().includes(value)
+);
+
+let table = document.getElementById("tableBody");
+table.innerHTML = "";
+
+filtered.forEach((s, index) => {
+
+table.innerHTML += `
+<tr>
+    <td>${s.name}</td>
+    <td>${s.roll}</td>
+    <td>
+        <button onclick="deleteRow(${index})">Delete</button>
+    </td>
+</tr>
+`;
+
+});
 
 }

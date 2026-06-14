@@ -8,13 +8,15 @@
 <body>
 
 <div class="container">
+
     <h1>Student Management System</h1>
 
     <input type="text" id="name" placeholder="Student Name">
-
     <input type="text" id="roll" placeholder="Roll Number">
 
     <button onclick="addStudent()">Add Student</button>
+
+    <input type="text" id="search" placeholder="Search student..." onkeyup="searchStudent()">
 
     <table>
         <thead>
@@ -25,10 +27,9 @@
             </tr>
         </thead>
 
-        <tbody id="tableBody">
-
-        </tbody>
+        <tbody id="tableBody"></tbody>
     </table>
+
 </div>
 
 <script src="script.js"></script>
