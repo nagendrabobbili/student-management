@@ -1,28 +1,27 @@
 pipeline {
     agent any
 
+    environment {
+        FIREBASE_TOKEN = credentials('firebase-token')
+    }
+
     stages {
+
         stage('Checkout') {
             steps {
-                echo 'Code checked out successfully'
+                checkout scm
             }
         }
 
-        stage('Build') {
+        stage('Check Firebase CLI') {
             steps {
-                echo 'Building the project'
+                bat 'firebase --version'
             }
         }
 
-        stage('Test') {
+        stage('Deploy to Firebase') {
             steps {
-                echo 'Testing the project'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo 'Deployment completed successfully'
+                bat 'firebase deploy --token %FIREBASE_TOKEN%'
             }
         }
     }
