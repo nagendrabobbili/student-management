@@ -15,13 +15,13 @@ pipeline {
 
         stage('Check Firebase CLI') {
             steps {
-                bat 'firebase --version'
+                bat '"C:\\Users\\bobbi\\AppData\\Roaming\\npm\\firebase.cmd" --version'
             }
         }
 
         stage('Deploy to Firebase') {
             steps {
-                bat 'firebase deploy --token %FIREBASE_TOKEN%'
+                bat '"C:\\Users\\bobbi\\AppData\\Roaming\\npm\\firebase.cmd" deploy --token %FIREBASE_TOKEN%'
             }
         }
     }
