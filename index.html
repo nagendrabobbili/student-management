@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>-Student Dashboard-Web Hook Testing 1</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management Dashboard</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -15,42 +16,55 @@
 
 <div class="main">
 
-<h1<-->Student Management Dashboard--></h1>
+    <h1>Student Management Dashboard</h1>
 
-<div class="cards">
-    <div class="card">
-        <h3>Total Students</h3>
-        <p id="totalCount">0</p>
+    <div class="cards">
+        <div class="card">
+            <h3>Total Students</h3>
+            <p id="totalCount">0</p>
+        </div>
     </div>
+
+    <div class="form">
+        <input
+            type="text"
+            id="name"
+            placeholder="Student Name">
+
+        <input
+            type="text"
+            id="roll"
+            placeholder="Roll Number">
+
+        <button onclick="addStudent()">
+            Add Student
+        </button>
+    </div>
+
+    <input
+        type="text"
+        id="search"
+        placeholder="Search Student..."
+        onkeyup="searchStudent()">
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Roll Number</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody id="tableBody">
+        </tbody>
+
+    </table>
+
 </div>
 
-<div class="form">
-    <input type="text" id="name" placeholder="Student Name">
-    <input type="text" id="roll" placeholder="Roll Number">
-    <button onclick="addStudent()">Add Student</button>
-</div>
-
-<input type="text"
-       id="search"
-       placeholder="Search student..."
-       onkeyup="searchStudent()">
-
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Roll No</th>
-<th>Actions</th>
-</tr>
-</thead>
-
-<tbody id="tableBody"></tbody>
-
-</table>
-
-</div>
-
-<script src="script.js"></script>
+<script type="module" src="script.js"></script>
 
 </body>
 </html>
