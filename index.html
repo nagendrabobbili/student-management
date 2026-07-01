@@ -1,70 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Management Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Student Management Platform</title>
+
+<link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
 
-<div class="sidebar">
-    <h2>Dashboard</h2>
-    <button onclick="showAll()">All Students</button>
+<header>
+
+<h1>🎓 Student Management Platform</h1>
+
+</header>
+
+<div class="dashboard">
+
+<div class="card">
+<h2 id="totalCount">0</h2>
+<p>Total Students</p>
 </div>
 
-<div class="main">
+<div class="card">
+<h2 id="deptCount">0</h2>
+<p>Departments</p>
+</div>
 
-    <h1>Student Management Dashboard  </h1>
-
-    <div class="cards">
-        <div class="card">
-            <h3>Total Students</h3>
-            <p id="totalCount">0</p>
-        </div>
-    </div>
-
-    <div class="form">
-        <input
-            type="text"
-            id="name"
-            placeholder="Student Name">
-
-        <input
-            type="text"
-            id="roll"
-            placeholder="Roll Number">
-
-        <button onclick="addStudent()">
-            Add Student
-        </button>
-    </div>
-
-    <input
-        type="text"
-        id="search"
-        placeholder="Search Student..."
-        onkeyup="searchStudent()">
-
-    <table>
-
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Roll Number</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-
-        <tbody id="tableBody">
-        </tbody>
-
-    </table>
+<div class="card">
+<h2 id="todayCount">0</h2>
+<p>Added Today</p>
+</div>
 
 </div>
 
-<script type="module" src="script.js"></script>
+<div class="container">
+
+<!---------------- LEFT SIDE ---------------->
+
+<div class="left-panel">
+
+<div class="form">
+
+<h2>Add Student</h2>
+
+<input
+type="text"
+id="name"
+placeholder="Student Name">
+
+<input
+type="text"
+id="roll"
+placeholder="Roll Number">
+
+<input
+type="text"
+id="department"
+placeholder="Department">
+
+<input
+type="text"
+id="year"
+placeholder="Year">
+
+<input
+type="email"
+id="email"
+placeholder="Email">
+
+<input
+type="text"
+id="phone"
+placeholder="Phone Number">
+
+<button onclick="addStudent()">
+Add Student
+</button>
+
+</div>
+
+<hr>
+
+<input
+type="text"
+id="search"
+placeholder="Search by Name or Roll">
+
+<button onclick="searchStudent()">
+Search
+</button>
+
+<button onclick="showAll()">
+Show All
+</button>
+
+<br><br>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Name</th>
+
+<th>Roll</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="tableBody">
+
+</tbody>
+
+</table>
+
+</div>
+
+<!---------------- RIGHT SIDE ---------------->
+
+<div class="profile-panel" id="profilePanel">
+
+<h2>Student Profile</h2>
+
+<div class="profile-image">
+
+<img
+src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+width="120">
+
+</div>
+
+<p><b>Name:</b> <span id="pName">-</span></p>
+
+<p><b>Roll:</b> <span id="pRoll">-</span></p>
+
+<p><b>Department:</b> <span id="pDepartment">-</span></p>
+
+<p><b>Year:</b> <span id="pYear">-</span></p>
+
+<p><b>Email:</b> <span id="pEmail">-</span></p>
+
+<p><b>Phone:</b> <span id="pPhone">-</span></p>
+
+<p><b>Attendance:</b> <span id="pAttendance">94%</span></p>
+
+</div>
+
+</div>
+
+<!--------------- EDIT MODAL ---------------->
+
+<div
+id="editModal"
+class="modal">
+
+<div class="modal-content">
+
+<h2>Edit Student</h2>
+
+<input
+type="text"
+id="editName">
+
+<input
+type="text"
+id="editRoll">
+
+<input
+type="text"
+id="editDepartment">
+
+<input
+type="text"
+id="editYear">
+
+<input
+type="email"
+id="editEmail">
+
+<input
+type="text"
+id="editPhone">
+
+<br><br>
+
+<button id="saveBtn">
+
+Save
+
+</button>
+
+<button onclick="closeModal()">
+
+Cancel
+
+</button>
+
+</div>
+
+</div>
+
+<script
+type="module"
+src="script.js">
+
+</script>
 
 </body>
 </html>
