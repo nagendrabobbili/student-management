@@ -8,18 +8,29 @@ import {
     update
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// Firebase Reference
-
 const studentsRef = ref(db, "students");
-
-// Global Variables
 
 let students = [];
 let editId = null;
 
-// ===============================
-// Load Students (Real-Time)
-// ===============================
+// ==============================
+// Attendance Calculator
+// ==============================
+
+function calculateAttendance(conducted, attended) {
+
+    conducted = Number(conducted) || 0;
+    attended = Number(attended) || 0;
+
+    if (conducted === 0) return "0%";
+
+    return ((attended / conducted) * 100).toFixed(2) + "%";
+
+}
+
+// ==============================
+// Load Students
+// ==============================
 
 function loadStudents(searchText = "") {
 
@@ -32,6 +43,10 @@ function loadStudents(searchText = "") {
         table.innerHTML = "";
 
         let total = 0;
+
+        let branches = new Set();
+
+        let attendanceTotal = 0;
 
         snapshot.forEach((child) => {
 
@@ -49,13 +64,30 @@ function loadStudents(searchText = "") {
 
                 searchText === "" ||
 
-                student.name.toLowerCase().includes(searchText.toLowerCase()) ||
+                (student.name || "")
+                    .toLowerCase()
+                    .includes(searchText.toLowerCase()) ||
 
-                student.roll.toLowerCase().includes(searchText.toLowerCase())
+                (student.roll || "")
+                    .toLowerCase()
+                    .includes(searchText.toLowerCase()) ||
+
+                (student.department || "")
+                    .toLowerCase()
+                    .includes(searchText.toLowerCase())
 
             ) {
 
                 total++;
+
+                branches.add(student.department || "");
+
+                const attendance = calculateAttendance(
+                    student.conducted,
+                    student.attended
+                );
+
+                attendanceTotal += parseFloat(attendance);
 
                 const row = document.createElement("tr");
 
@@ -65,29 +97,35 @@ function loadStudents(searchText = "") {
 
                 <td>${student.roll}</td>
 
+                <td>${student.department || "-"}</td>
+
+                <td>${student.year || "-"}</td>
+
+                <td>${attendance}</td>
+
                 <td>
 
                     <button
-                        class="view-btn"
-                        onclick="viewStudent('${student.id}')">
+                    class="view-btn"
+                    onclick="viewStudent('${student.id}')">
 
-                        View
-
-                    </button>
-
-                    <button
-                        class="edit-btn"
-                        onclick="editStudent('${student.id}')">
-
-                        Edit
+                    View
 
                     </button>
 
                     <button
-                        class="delete-btn"
-                        onclick="deleteStudent('${student.id}')">
+                    class="edit-btn"
+                    onclick="editStudent('${student.id}')">
 
-                        Delete
+                    Edit
+
+                    </button>
+
+                    <button
+                    class="delete-btn"
+                    onclick="deleteStudent('${student.id}')">
+
+                    Delete
 
                     </button>
 
@@ -103,65 +141,99 @@ function loadStudents(searchText = "") {
 
         document.getElementById("totalCount").innerText = total;
 
+        if (document.getElementById("branchCount"))
+            document.getElementById("branchCount").innerText =
+                branches.size;
+
+        if (document.getElementById("avgAttendance")) {
+
+            document.getElementById("avgAttendance").innerText =
+                total === 0
+                    ? "0%"
+                    : (attendanceTotal / total).toFixed(1) + "%";
+
+        }
+
     });
 
 }
 
-// Load Automatically
-
 loadStudents();
-// ===============================
+
+// ==============================
 // Add Student
-// ===============================
+// ==============================
 
 window.addStudent = function () {
 
-    const name = document.getElementById("name").value.trim();
-    const roll = document.getElementById("roll").value.trim();
-    const department = document.getElementById("department").value.trim();
-    const year = document.getElementById("year").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const phone = document.getElementById("phone").value.trim();
+    const student = {
+
+        name: document.getElementById("name").value.trim(),
+
+        roll: document.getElementById("roll").value.trim(),
+
+        department: document.getElementById("department").value,
+
+        year: document.getElementById("year").value,
+
+        email: document.getElementById("email").value.trim(),
+
+        phone: document.getElementById("phone").value.trim(),
+
+        conducted: Number(
+            document.getElementById("conducted").value
+        ) || 0,
+
+        attended: Number(
+            document.getElementById("attended").value
+        ) || 0
+
+    };
 
     if (
-        name === "" ||
-        roll === "" ||
-        department === "" ||
-        year === "" ||
-        email === "" ||
-        phone === ""
+
+        student.name === "" ||
+
+        student.roll === "" ||
+
+        student.department === "" ||
+
+        student.year === "" ||
+
+        student.email === "" ||
+
+        student.phone === ""
+
     ) {
 
         alert("Please fill all fields.");
+
         return;
 
     }
 
-    push(studentsRef, {
+    push(studentsRef, student);
 
-        name,
-        roll,
-        department,
-        year,
-        email,
-        phone,
-        attendance: "94%"
+    [
+        "name",
+        "roll",
+        "department",
+        "year",
+        "email",
+        "phone",
+        "conducted",
+        "attended"
+
+    ].forEach(id => {
+
+        document.getElementById(id).value = "";
 
     });
 
-    document.getElementById("name").value = "";
-    document.getElementById("roll").value = "";
-    document.getElementById("department").value = "";
-    document.getElementById("year").value = "";
-    document.getElementById("email").value = "";
-    document.getElementById("phone").value = "";
-
 };
-
-
-// ===============================
+// ==============================
 // View Student Profile
-// ===============================
+// ==============================
 
 window.viewStudent = function (id) {
 
@@ -169,49 +241,66 @@ window.viewStudent = function (id) {
 
     if (!student) return;
 
+    document.getElementById("profilePanel").style.display = "block";
+
     document.getElementById("pName").innerText =
-        student.name;
+        student.name || "-";
 
     document.getElementById("pRoll").innerText =
-        student.roll;
+        student.roll || "-";
 
     document.getElementById("pDepartment").innerText =
-        student.department;
+        student.department || "Not Added";
 
     document.getElementById("pYear").innerText =
-        student.year;
+        student.year || "Not Added";
 
     document.getElementById("pEmail").innerText =
-        student.email;
+        student.email || "Not Added";
 
     document.getElementById("pPhone").innerText =
-        student.phone;
+        student.phone || "Not Added";
+
+    document.getElementById("pConducted").innerText =
+        student.conducted || 0;
+
+    document.getElementById("pAttended").innerText =
+        student.attended || 0;
 
     document.getElementById("pAttendance").innerText =
-        student.attendance || "94%";
+        calculateAttendance(
+            student.conducted,
+            student.attended
+        );
 
 };
 
+// ==============================
+// Close Profile
+// ==============================
 
-// ===============================
+window.closeProfile = function () {
+
+    document.getElementById("profilePanel").style.display = "none";
+
+};
+
+// ==============================
 // Search Student
-// ===============================
+// ==============================
 
 window.searchStudent = function () {
 
-    const text = document
-        .getElementById("search")
-        .value
-        .trim();
+    const text =
+        document.getElementById("search").value.trim();
 
     loadStudents(text);
 
 };
 
-
-// ===============================
+// ==============================
 // Show All Students
-// ===============================
+// ==============================
 
 window.showAll = function () {
 
@@ -220,9 +309,10 @@ window.showAll = function () {
     loadStudents();
 
 };
-// ===============================
+
+// ==============================
 // Edit Student
-// ===============================
+// ==============================
 
 window.editStudent = function (id) {
 
@@ -232,21 +322,39 @@ window.editStudent = function (id) {
 
     editId = id;
 
-    document.getElementById("editName").value = student.name;
-    document.getElementById("editRoll").value = student.roll;
-    document.getElementById("editDepartment").value = student.department;
-    document.getElementById("editYear").value = student.year;
-    document.getElementById("editEmail").value = student.email;
-    document.getElementById("editPhone").value = student.phone;
+    document.getElementById("editName").value =
+        student.name || "";
 
-    document.getElementById("editModal").style.display = "block";
+    document.getElementById("editRoll").value =
+        student.roll || "";
+
+    document.getElementById("editDepartment").value =
+        student.department || "";
+
+    document.getElementById("editYear").value =
+        student.year || "";
+
+    document.getElementById("editEmail").value =
+        student.email || "";
+
+    document.getElementById("editPhone").value =
+        student.phone || "";
+
+    document.getElementById("editConducted").value =
+        student.conducted || 0;
+
+    document.getElementById("editAttended").value =
+        student.attended || 0;
+
+    updateAttendancePreview();
+
+    document.getElementById("editModal").style.display =
+        "block";
 
 };
-
-
-// ===============================
+// ==============================
 // Save Edited Student
-// ===============================
+// ==============================
 
 document.getElementById("saveBtn").addEventListener("click", () => {
 
@@ -258,13 +366,21 @@ document.getElementById("saveBtn").addEventListener("click", () => {
 
         roll: document.getElementById("editRoll").value.trim(),
 
-        department: document.getElementById("editDepartment").value.trim(),
+        department: document.getElementById("editDepartment").value,
 
-        year: document.getElementById("editYear").value.trim(),
+        year: document.getElementById("editYear").value,
 
         email: document.getElementById("editEmail").value.trim(),
 
-        phone: document.getElementById("editPhone").value.trim()
+        phone: document.getElementById("editPhone").value.trim(),
+
+        conducted: Number(
+            document.getElementById("editConducted").value
+        ) || 0,
+
+        attended: Number(
+            document.getElementById("editAttended").value
+        ) || 0
 
     });
 
@@ -272,10 +388,9 @@ document.getElementById("saveBtn").addEventListener("click", () => {
 
 });
 
-
-// ===============================
+// ==============================
 // Close Modal
-// ===============================
+// ==============================
 
 window.closeModal = function () {
 
@@ -285,29 +400,55 @@ window.closeModal = function () {
 
 };
 
-
-// ===============================
+// ==============================
 // Delete Student
-// ===============================
+// ==============================
 
 window.deleteStudent = function (id) {
 
-    const ok = confirm("Delete this student?");
-
-    if (!ok) return;
+    if (!confirm("Delete this student?"))
+        return;
 
     remove(ref(db, "students/" + id));
 
 };
 
+// ==============================
+// Attendance Preview
+// ==============================
 
-// ===============================
+function updateAttendancePreview() {
+
+    const conducted = Number(
+        document.getElementById("editConducted").value
+    ) || 0;
+
+    const attended = Number(
+        document.getElementById("editAttended").value
+    ) || 0;
+
+    document.getElementById("attendancePreview").innerText =
+        "Attendance : " +
+        calculateAttendance(conducted, attended);
+
+}
+
+document
+.getElementById("editConducted")
+.addEventListener("input", updateAttendancePreview);
+
+document
+.getElementById("editAttended")
+.addEventListener("input", updateAttendancePreview);
+
+// ==============================
 // Close Modal When Clicking Outside
-// ===============================
+// ==============================
 
 window.onclick = function (event) {
 
-    const modal = document.getElementById("editModal");
+    const modal =
+        document.getElementById("editModal");
 
     if (event.target === modal) {
 
@@ -316,3 +457,57 @@ window.onclick = function (event) {
     }
 
 };
+
+// ==============================
+// Dashboard Refresh
+// ==============================
+
+function refreshDashboard() {
+
+    document.getElementById("totalCount").innerText =
+        students.length;
+
+    if (document.getElementById("branchCount")) {
+
+        const branches = new Set();
+
+        students.forEach(student => {
+
+            if (student.department)
+                branches.add(student.department);
+
+        });
+
+        document.getElementById("branchCount").innerText =
+            branches.size;
+
+    }
+
+    if (document.getElementById("avgAttendance")) {
+
+        let total = 0;
+
+        students.forEach(student => {
+
+            total += parseFloat(
+                calculateAttendance(
+                    student.conducted,
+                    student.attended
+                )
+            );
+
+        });
+
+        document.getElementById("avgAttendance").innerText =
+
+            students.length === 0
+
+                ? "0%"
+
+                : (total / students.length).toFixed(1) + "%";
+
+    }
+
+}
+
+setInterval(refreshDashboard, 1000);

@@ -1,219 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Student Management Platform</title>
-
-<link rel="stylesheet" href="style.css">
-
-</head>
-
-<body>
-
-<header>
-
-<h1>🎓 Student Management Platform v-2</h1>
-
-</header>
-
-<div class="dashboard">
-
-<div class="card">
-<h2 id="totalCount">0</h2>
-<p>Total Students</p>
-</div>
-
-<div class="card">
-<h2 id="deptCount">0</h2>
-<p>Departments</p>
-</div>
-
-<div class="card">
-<h2 id="todayCount">0</h2>
-<p>Added Today</p>
-</div>
-
-</div>
-
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Student Management Platform</title><link rel="stylesheet" href="style.css"></head><body>
+<header><h1>🎓 Student Management Platform</h1></header>
+<section class="dashboard">
+<div class="card"><h2 id="totalCount">0</h2><p>Total Students</p></div>
+<div class="card"><h2 id="branchCount">0</h2><p>Branches</p></div>
+<div class="card"><h2 id="avgAttendance">0%</h2><p>Average Attendance</p></div>
+</section>
 <div class="container">
-
-<!---------------- LEFT SIDE ---------------->
-
 <div class="left-panel">
-
-<div class="form">
-
+<div class="add-box">
 <h2>Add Student</h2>
-
-<input
-type="text"
-id="name"
-placeholder="Student Name">
-
-<input
-type="text"
-id="roll"
-placeholder="Roll Number">
-
-<input
-type="text"
-id="department"
-placeholder="Department">
-
-<input
-type="text"
-id="year"
-placeholder="Year">
-
-<input
-type="email"
-id="email"
-placeholder="Email">
-
-<input
-type="text"
-id="phone"
-placeholder="Phone Number">
-
-<button onclick="addStudent()">
-Add Student
-</button>
-
+<input id="name" placeholder="Student Name">
+<input id="roll" placeholder="Roll Number">
+<select id="department"><option value="">Select Branch</option><option>CSE</option><option>CSE-AI</option><option>CSE-DS</option><option>IT</option><option>ECE</option><option>EEE</option><option>MECH</option><option>CIVIL</option></select>
+<select id="year"><option value="">Select Year</option><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option></select>
+<input id="email" placeholder="Email">
+<input id="phone" placeholder="Phone Number">
+<input id="conducted" type="number" placeholder="Classes Conducted">
+<input id="attended" type="number" placeholder="Classes Attended">
+<button onclick="addStudent()">Add Student</button></div>
+<div class="search-box">
+<input id="search" placeholder="Search Name / Roll / Branch">
+<button onclick="searchStudent()">Search</button>
+<button onclick="showAll()">Show All</button></div>
+<table><thead><tr><th>Name</th><th>Roll</th><th>Branch</th><th>Year</th><th>Attendance</th><th>Action</th></tr></thead><tbody id="tableBody"></tbody></table>
 </div>
-
-<hr>
-
-<input
-type="text"
-id="search"
-placeholder="Search by Name or Roll">
-
-<button onclick="searchStudent()">
-Search
-</button>
-
-<button onclick="showAll()">
-Show All
-</button>
-
-<br><br>
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>Name</th>
-
-<th>Roll</th>
-
-<th>Action</th>
-
-</tr>
-
-</thead>
-
-<tbody id="tableBody">
-
-</tbody>
-
-</table>
-
-</div>
-
-<!---------------- RIGHT SIDE ---------------->
-
-<div class="profile-panel" id="profilePanel">
-
+<aside id="profilePanel" class="profile-panel" style="display:none;">
+<button onclick="closeProfile()">✖</button>
 <h2>Student Profile</h2>
-
-<div class="profile-image">
-
-<img
-src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-width="120">
-
-</div>
-
-<p><b>Name:</b> <span id="pName">-</span></p>
-
-<p><b>Roll:</b> <span id="pRoll">-</span></p>
-
-<p><b>Department:</b> <span id="pDepartment">-</span></p>
-
-<p><b>Year:</b> <span id="pYear">-</span></p>
-
-<p><b>Email:</b> <span id="pEmail">-</span></p>
-
-<p><b>Phone:</b> <span id="pPhone">-</span></p>
-
-<p><b>Attendance:</b> <span id="pAttendance">94%</span></p>
-
-</div>
-
-</div>
-
-<!--------------- EDIT MODAL ---------------->
-
-<div
-id="editModal"
-class="modal">
-
-<div class="modal-content">
-
+<img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="120">
+<p><b>Name:</b> <span id="pName"></span></p>
+<p><b>Roll:</b> <span id="pRoll"></span></p>
+<p><b>Branch:</b> <span id="pDepartment"></span></p>
+<p><b>Year:</b> <span id="pYear"></span></p>
+<p><b>Email:</b> <span id="pEmail"></span></p>
+<p><b>Phone:</b> <span id="pPhone"></span></p>
+<p><b>Conducted:</b> <span id="pConducted"></span></p>
+<p><b>Attended:</b> <span id="pAttended"></span></p>
+<p><b>Attendance:</b> <span id="pAttendance"></span></p>
+</aside></div>
+<div id="editModal" class="modal"><div class="modal-content">
 <h2>Edit Student</h2>
-
-<input
-type="text"
-id="editName">
-
-<input
-type="text"
-id="editRoll">
-
-<input
-type="text"
-id="editDepartment">
-
-<input
-type="text"
-id="editYear">
-
-<input
-type="email"
-id="editEmail">
-
-<input
-type="text"
-id="editPhone">
-
-<br><br>
-
-<button id="saveBtn">
-
-Save
-
-</button>
-
-<button onclick="closeModal()">
-
-Cancel
-
-</button>
-
-</div>
-
-</div>
-
-<script
-type="module"
-src="script.js">
-
-</script>
-
-</body>
-</html>
+<input id="editName" placeholder="Student Name">
+<input id="editRoll" placeholder="Roll Number">
+<select id="editDepartment"><option value="">Select Branch</option><option>CSE</option><option>CSE-AI</option><option>CSE-DS</option><option>IT</option><option>ECE</option><option>EEE</option><option>MECH</option><option>CIVIL</option></select>
+<select id="editYear"><option value="">Select Year</option><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option></select>
+<input id="editEmail" placeholder="Email">
+<input id="editPhone" placeholder="Phone">
+<input id="editConducted" type="number" placeholder="Classes Conducted">
+<input id="editAttended" type="number" placeholder="Classes Attended">
+<div id="attendancePreview">Attendance: 0%</div>
+<button id="saveBtn">Save</button>
+<button onclick="closeModal()">Cancel</button>
+</div></div>
+<script type="module" src="script.js"></script></body></html>
