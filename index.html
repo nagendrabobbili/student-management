@@ -9,12 +9,24 @@
 <div class="left-panel">
 <div class="add-box">
 <h2>Add Student</h2>
-<input id="name" placeholder="Student Name">
+<input
+id="name"
+placeholder="Student Name"
+required
+oninput="this.value=this.value.replace(/[^A-Za-z ]/g,'')">
 <input id="roll" placeholder="Roll Number">
 <select id="department"><option value="">Select Branch</option><option>CSE</option><option>CSE-AI</option><option>CSE-DS</option><option>IT</option><option>ECE</option><option>EEE</option><option>MECH</option><option>CIVIL</option></select>
 <select id="year"><option value="">Select Year</option><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option></select>
-<input id="email" placeholder="Email">
-<input id="phone" placeholder="Phone Number">
+<input
+    type="email"
+    id="email"
+    placeholder="example@gmail.com">
+<input
+    type="tel"
+    id="phone"
+    maxlength="10"
+    placeholder="Enter 10-digit phone number"
+    oninput="this.value=this.value.replace(/[^0-9]/g,'')">
 <input id="conducted" type="number" placeholder="Classes Conducted">
 <input id="attended" type="number" placeholder="Classes Attended">
 <button onclick="addStudent()">Add Student</button></div>
@@ -25,9 +37,18 @@
 <table><thead><tr><th>Name</th><th>Roll</th><th>Branch</th><th>Year</th><th>Attendance</th><th>Action</th></tr></thead><tbody id="tableBody"></tbody></table>
 </div>
 <aside id="profilePanel" class="profile-panel" style="display:none;">
-<button onclick="closeProfile()">✖</button>
+<button
+class="close-profile"
+onclick="closeProfile()">
+
+✖
+
+</button>
 <h2>Student Profile</h2>
-<img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="120">
+<img
+id="profileImage"
+src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+width="120">
 <p><b>Name:</b> <span id="pName"></span></p>
 <p><b>Roll:</b> <span id="pRoll"></span></p>
 <p><b>Branch:</b> <span id="pDepartment"></span></p>
@@ -40,12 +61,23 @@
 </aside></div>
 <div id="editModal" class="modal"><div class="modal-content">
 <h2>Edit Student</h2>
-<input id="editName" placeholder="Student Name">
+<input
+id="editName"
+placeholder="Student Name"
+oninput="this.value=this.value.replace(/[^A-Za-z ]/g,'')">
 <input id="editRoll" placeholder="Roll Number">
 <select id="editDepartment"><option value="">Select Branch</option><option>CSE</option><option>CSE-AI</option><option>CSE-DS</option><option>IT</option><option>ECE</option><option>EEE</option><option>MECH</option><option>CIVIL</option></select>
 <select id="editYear"><option value="">Select Year</option><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option></select>
-<input id="editEmail" placeholder="Email">
-<input id="editPhone" placeholder="Phone">
+<input
+    type="email"
+    id="editEmail"
+    placeholder="example@gmail.com">
+<input
+    type="tel"
+    id="editPhone"
+    maxlength="10"
+    placeholder="Enter 10-digit phone number"
+    oninput="this.value=this.value.replace(/[^0-9]/g,'')">
 <input id="editConducted" type="number" placeholder="Classes Conducted">
 <input id="editAttended" type="number" placeholder="Classes Attended">
 <div id="attendancePreview">Attendance: 0%</div>

@@ -8,14 +8,18 @@ import {
     update
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+// =====================================
+// Firebase Reference
+// =====================================
+
 const studentsRef = ref(db, "students");
 
 let students = [];
 let editId = null;
 
-// ==============================
+// =====================================
 // Attendance Calculator
-// ==============================
+// =====================================
 
 function calculateAttendance(conducted, attended) {
 
@@ -28,9 +32,51 @@ function calculateAttendance(conducted, attended) {
 
 }
 
-// ==============================
+// =====================================
+// Dashboard Refresh
+// =====================================
+
+function refreshDashboard() {
+
+    document.getElementById("totalCount").innerText =
+        students.length;
+
+    const branches = new Set();
+
+    let attendanceTotal = 0;
+
+    students.forEach(student => {
+
+        if (student.department)
+            branches.add(student.department);
+
+        attendanceTotal += parseFloat(
+
+            calculateAttendance(
+                student.conducted,
+                student.attended
+            )
+
+        );
+
+    });
+
+    document.getElementById("branchCount").innerText =
+        branches.size;
+
+    document.getElementById("avgAttendance").innerText =
+
+        students.length === 0
+
+            ? "0%"
+
+            : (attendanceTotal / students.length).toFixed(1) + "%";
+
+}
+
+// =====================================
 // Load Students
-// ==============================
+// =====================================
 
 function loadStudents(searchText = "") {
 
@@ -41,12 +87,6 @@ function loadStudents(searchText = "") {
         const table = document.getElementById("tableBody");
 
         table.innerHTML = "";
-
-        let total = 0;
-
-        let branches = new Set();
-
-        let attendanceTotal = 0;
 
         snapshot.forEach((child) => {
 
@@ -60,34 +100,41 @@ function loadStudents(searchText = "") {
 
         students.forEach((student) => {
 
+            const keyword = searchText.toLowerCase();
+
             if (
 
                 searchText === "" ||
 
                 (student.name || "")
                     .toLowerCase()
-                    .includes(searchText.toLowerCase()) ||
+                    .includes(keyword) ||
 
                 (student.roll || "")
                     .toLowerCase()
-                    .includes(searchText.toLowerCase()) ||
+                    .includes(keyword) ||
 
                 (student.department || "")
                     .toLowerCase()
-                    .includes(searchText.toLowerCase())
+                    .includes(keyword) ||
+
+                (student.email || "")
+                    .toLowerCase()
+                    .includes(keyword) ||
+
+                (student.phone || "")
+                    .toLowerCase()
+                    .includes(keyword)
 
             ) {
 
-                total++;
+                const attendance =
+                    calculateAttendance(
 
-                branches.add(student.department || "");
+                        student.conducted,
+                        student.attended
 
-                const attendance = calculateAttendance(
-                    student.conducted,
-                    student.attended
-                );
-
-                attendanceTotal += parseFloat(attendance);
+                    );
 
                 const row = document.createElement("tr");
 
@@ -139,30 +186,18 @@ function loadStudents(searchText = "") {
 
         });
 
-        document.getElementById("totalCount").innerText = total;
-
-        if (document.getElementById("branchCount"))
-            document.getElementById("branchCount").innerText =
-                branches.size;
-
-        if (document.getElementById("avgAttendance")) {
-
-            document.getElementById("avgAttendance").innerText =
-                total === 0
-                    ? "0%"
-                    : (attendanceTotal / total).toFixed(1) + "%";
-
-        }
+        refreshDashboard();
 
     });
 
 }
 
-loadStudents();
+// Load Students Automatically
 
-// ==============================
+loadStudents();
+// =====================================
 // Add Student
-// ==============================
+// =====================================
 
 window.addStudent = function () {
 
@@ -180,15 +215,15 @@ window.addStudent = function () {
 
         phone: document.getElementById("phone").value.trim(),
 
-        conducted: Number(
-            document.getElementById("conducted").value
-        ) || 0,
+        conducted: Number(document.getElementById("conducted").value) || 0,
 
-        attended: Number(
-            document.getElementById("attended").value
-        ) || 0
+        attended: Number(document.getElementById("attended").value) || 0
 
     };
+
+    // ============================
+    // Empty Field Validation
+    // ============================
 
     if (
 
@@ -212,28 +247,170 @@ window.addStudent = function () {
 
     }
 
+    // ============================
+    // Name Validation
+    // ============================
+
+    if (!/^[A-Za-z ]+$/.test(student.name)) {
+
+        alert("Name should contain only letters.");
+
+        return;
+
+    }
+
+    // ============================
+    // Email Validation
+    // ============================
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailPattern.test(student.email)) {
+
+        alert("Please enter a valid email address.");
+
+        return;
+
+    }
+
+    // ============================
+    // Phone Validation
+    // ============================
+
+    if (!/^[0-9]{10}$/.test(student.phone)) {
+
+        alert("Phone number must contain exactly 10 digits.");
+
+        return;
+
+    }
+
+    // ============================
+    // Attendance Validation
+    // ============================
+
+    if (student.conducted < 0 || student.attended < 0) {
+
+        alert("Attendance values cannot be negative.");
+
+        return;
+
+    }
+
+    if (student.attended > student.conducted) {
+
+        alert("Classes attended cannot exceed classes conducted.");
+
+        return;
+
+    }
+
+    // ============================
+    // Duplicate Roll Number
+    // ============================
+
+    const rollExists = students.some(
+
+        s =>
+
+            s.roll.toLowerCase() ===
+
+            student.roll.toLowerCase()
+
+    );
+
+    if (rollExists) {
+
+        alert("Roll Number already exists.");
+
+        return;
+
+    }
+
+    // ============================
+    // Duplicate Email
+    // ============================
+
+    const emailExists = students.some(
+
+        s =>
+
+            s.email.toLowerCase() ===
+
+            student.email.toLowerCase()
+
+    );
+
+    if (emailExists) {
+
+        alert("Email already exists.");
+
+        return;
+
+    }
+
+    // ============================
+    // Save Student
+    // ============================
+
     push(studentsRef, student);
 
-    [
-        "name",
-        "roll",
-        "department",
-        "year",
-        "email",
-        "phone",
-        "conducted",
-        "attended"
+    // ============================
+    // Clear Form
+    // ============================
 
-    ].forEach(id => {
+    document.getElementById("name").value = "";
 
-        document.getElementById(id).value = "";
+    document.getElementById("roll").value = "";
 
-    });
+    document.getElementById("department").value = "";
+
+    document.getElementById("year").value = "";
+
+    document.getElementById("email").value = "";
+
+    document.getElementById("phone").value = "";
+
+    document.getElementById("conducted").value = "";
+
+    document.getElementById("attended").value = "";
+
+    alert("Student Added Successfully.");
 
 };
-// ==============================
+
+// =====================================
+// Search Student
+// =====================================
+
+window.searchStudent = function () {
+
+    const text =
+
+        document.getElementById("search")
+
+        .value
+
+        .trim();
+
+    loadStudents(text);
+
+};
+
+// =====================================
+// Show All Students
+// =====================================
+
+window.showAll = function () {
+
+    document.getElementById("search").value = "";
+
+    loadStudents();
+
+};
+// =====================================
 // View Student Profile
-// ==============================
+// =====================================
 
 window.viewStudent = function (id) {
 
@@ -243,23 +420,12 @@ window.viewStudent = function (id) {
 
     document.getElementById("profilePanel").style.display = "block";
 
-    document.getElementById("pName").innerText =
-        student.name || "-";
-
-    document.getElementById("pRoll").innerText =
-        student.roll || "-";
-
-    document.getElementById("pDepartment").innerText =
-        student.department || "Not Added";
-
-    document.getElementById("pYear").innerText =
-        student.year || "Not Added";
-
-    document.getElementById("pEmail").innerText =
-        student.email || "Not Added";
-
-    document.getElementById("pPhone").innerText =
-        student.phone || "Not Added";
+    document.getElementById("pName").innerText = student.name || "-";
+    document.getElementById("pRoll").innerText = student.roll || "-";
+    document.getElementById("pDepartment").innerText = student.department || "-";
+    document.getElementById("pYear").innerText = student.year || "-";
+    document.getElementById("pEmail").innerText = student.email || "-";
+    document.getElementById("pPhone").innerText = student.phone || "-";
 
     document.getElementById("pConducted").innerText =
         student.conducted || 0;
@@ -268,16 +434,13 @@ window.viewStudent = function (id) {
         student.attended || 0;
 
     document.getElementById("pAttendance").innerText =
-        calculateAttendance(
-            student.conducted,
-            student.attended
-        );
+        calculateAttendance(student.conducted, student.attended);
 
 };
 
-// ==============================
+// =====================================
 // Close Profile
-// ==============================
+// =====================================
 
 window.closeProfile = function () {
 
@@ -285,34 +448,9 @@ window.closeProfile = function () {
 
 };
 
-// ==============================
-// Search Student
-// ==============================
-
-window.searchStudent = function () {
-
-    const text =
-        document.getElementById("search").value.trim();
-
-    loadStudents(text);
-
-};
-
-// ==============================
-// Show All Students
-// ==============================
-
-window.showAll = function () {
-
-    document.getElementById("search").value = "";
-
-    loadStudents();
-
-};
-
-// ==============================
+// =====================================
 // Edit Student
-// ==============================
+// =====================================
 
 window.editStudent = function (id) {
 
@@ -322,75 +460,141 @@ window.editStudent = function (id) {
 
     editId = id;
 
-    document.getElementById("editName").value =
-        student.name || "";
+    document.getElementById("editName").value = student.name || "";
+    document.getElementById("editRoll").value = student.roll || "";
+    document.getElementById("editDepartment").value = student.department || "";
+    document.getElementById("editYear").value = student.year || "";
+    document.getElementById("editEmail").value = student.email || "";
+    document.getElementById("editPhone").value = student.phone || "";
+    document.getElementById("editConducted").value = student.conducted || 0;
+    document.getElementById("editAttended").value = student.attended || 0;
 
-    document.getElementById("editRoll").value =
-        student.roll || "";
+    document.getElementById("attendancePreview").innerText =
+        "Attendance : " +
+        calculateAttendance(student.conducted, student.attended);
 
-    document.getElementById("editDepartment").value =
-        student.department || "";
-
-    document.getElementById("editYear").value =
-        student.year || "";
-
-    document.getElementById("editEmail").value =
-        student.email || "";
-
-    document.getElementById("editPhone").value =
-        student.phone || "";
-
-    document.getElementById("editConducted").value =
-        student.conducted || 0;
-
-    document.getElementById("editAttended").value =
-        student.attended || 0;
-
-    updateAttendancePreview();
-
-    document.getElementById("editModal").style.display =
-        "block";
+    document.getElementById("editModal").style.display = "block";
 
 };
-// ==============================
-// Save Edited Student
-// ==============================
+
+// =====================================
+// Live Attendance Preview
+// =====================================
+
+document.getElementById("editConducted").addEventListener("input", updatePreview);
+document.getElementById("editAttended").addEventListener("input", updatePreview);
+
+function updatePreview() {
+
+    const conducted =
+        Number(document.getElementById("editConducted").value) || 0;
+
+    const attended =
+        Number(document.getElementById("editAttended").value) || 0;
+
+    document.getElementById("attendancePreview").innerText =
+        "Attendance : " + calculateAttendance(conducted, attended);
+
+}
+
+// =====================================
+// Save Student
+// =====================================
 
 document.getElementById("saveBtn").addEventListener("click", () => {
 
     if (!editId) return;
 
-    update(ref(db, "students/" + editId), {
+    const student = {
 
         name: document.getElementById("editName").value.trim(),
-
         roll: document.getElementById("editRoll").value.trim(),
-
         department: document.getElementById("editDepartment").value,
-
         year: document.getElementById("editYear").value,
-
         email: document.getElementById("editEmail").value.trim(),
-
         phone: document.getElementById("editPhone").value.trim(),
+        conducted: Number(document.getElementById("editConducted").value) || 0,
+        attended: Number(document.getElementById("editAttended").value) || 0
 
-        conducted: Number(
-            document.getElementById("editConducted").value
-        ) || 0,
+    };
 
-        attended: Number(
-            document.getElementById("editAttended").value
-        ) || 0
+    if (
+        student.name === "" ||
+        student.roll === "" ||
+        student.department === "" ||
+        student.year === "" ||
+        student.email === "" ||
+        student.phone === ""
+    ) {
 
-    });
+        alert("Please fill all fields.");
+        return;
+
+    }
+
+    if (!/^[A-Za-z ]+$/.test(student.name)) {
+
+        alert("Name should contain only letters.");
+        return;
+
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(student.email)) {
+
+        alert("Invalid email address.");
+        return;
+
+    }
+
+    if (!/^[0-9]{10}$/.test(student.phone)) {
+
+        alert("Phone number must contain exactly 10 digits.");
+        return;
+
+    }
+
+    if (student.attended > student.conducted) {
+
+        alert("Classes attended cannot exceed classes conducted.");
+        return;
+
+    }
+
+    const duplicateRoll = students.some(s =>
+        s.id !== editId &&
+        s.roll.toLowerCase() === student.roll.toLowerCase()
+    );
+
+    if (duplicateRoll) {
+
+        alert("Roll Number already exists.");
+        return;
+
+    }
+
+    const duplicateEmail = students.some(s =>
+        s.id !== editId &&
+        s.email.toLowerCase() === student.email.toLowerCase()
+    );
+
+    if (duplicateEmail) {
+
+        alert("Email already exists.");
+        return;
+
+    }
+
+    update(ref(db, "students/" + editId), student);
 
     closeModal();
 
+    alert("Student Updated Successfully.");
+
 });
 
-// ==============================
+// =====================================
 // Close Modal
-// ==============================
+// =====================================
 
 window.closeModal = function () {
 
@@ -400,55 +604,33 @@ window.closeModal = function () {
 
 };
 
-// ==============================
+// =====================================
 // Delete Student
-// ==============================
+// =====================================
 
 window.deleteStudent = function (id) {
 
-    if (!confirm("Delete this student?"))
-        return;
+    const student = students.find(s => s.id === id);
 
-    remove(ref(db, "students/" + id));
+    if (!student) return;
+
+    if (confirm(`Delete ${student.name}?`)) {
+
+        remove(ref(db, "students/" + id));
+
+        closeProfile();
+
+    }
 
 };
 
-// ==============================
-// Attendance Preview
-// ==============================
-
-function updateAttendancePreview() {
-
-    const conducted = Number(
-        document.getElementById("editConducted").value
-    ) || 0;
-
-    const attended = Number(
-        document.getElementById("editAttended").value
-    ) || 0;
-
-    document.getElementById("attendancePreview").innerText =
-        "Attendance : " +
-        calculateAttendance(conducted, attended);
-
-}
-
-document
-.getElementById("editConducted")
-.addEventListener("input", updateAttendancePreview);
-
-document
-.getElementById("editAttended")
-.addEventListener("input", updateAttendancePreview);
-
-// ==============================
+// =====================================
 // Close Modal When Clicking Outside
-// ==============================
+// =====================================
 
 window.onclick = function (event) {
 
-    const modal =
-        document.getElementById("editModal");
+    const modal = document.getElementById("editModal");
 
     if (event.target === modal) {
 
@@ -457,57 +639,3 @@ window.onclick = function (event) {
     }
 
 };
-
-// ==============================
-// Dashboard Refresh
-// ==============================
-
-function refreshDashboard() {
-
-    document.getElementById("totalCount").innerText =
-        students.length;
-
-    if (document.getElementById("branchCount")) {
-
-        const branches = new Set();
-
-        students.forEach(student => {
-
-            if (student.department)
-                branches.add(student.department);
-
-        });
-
-        document.getElementById("branchCount").innerText =
-            branches.size;
-
-    }
-
-    if (document.getElementById("avgAttendance")) {
-
-        let total = 0;
-
-        students.forEach(student => {
-
-            total += parseFloat(
-                calculateAttendance(
-                    student.conducted,
-                    student.attended
-                )
-            );
-
-        });
-
-        document.getElementById("avgAttendance").innerText =
-
-            students.length === 0
-
-                ? "0%"
-
-                : (total / students.length).toFixed(1) + "%";
-
-    }
-
-}
-
-setInterval(refreshDashboard, 1000);
