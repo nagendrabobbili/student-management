@@ -11,14 +11,25 @@ pipeline {
 
         stage('Deploy to EC2') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'ec2-key', keyFileVariable: 'KEY')]) {
-                    bat '''
-                    scp -o StrictHostKeyChecking=no -i %KEY% -r * ec2-user@52.205.214.136:/home/ec2-user/student-management
+                bat '''
+                echo =========================================
+                echo Deploying to EC2
+                echo =========================================
 
-                    ssh -o StrictHostKeyChecking=no -i %KEY% ec2-user@52.205.214.136 "cd /home/ec2-user/student-management && ./deploy.sh"
-                    '''
-                }
+                scp -i "C:\\Jenkins\\Keys\\student-management-key.pem" -o StrictHostKeyChecking=no -r * ec2-user@52.205.214.136:/home/ec2-user/student-management
+
+                ssh -i "C:\\Jenkins\\Keys\\student-management-key.pem" -o StrictHostKeyChecking=no ec2-user@52.205.214.136 "echo Deployment completed"
+                '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Deployment Successful!'
+        }
+        failure {
+            echo 'Deployment Failed!'
         }
     }
 }
