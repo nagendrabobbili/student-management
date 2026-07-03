@@ -13,12 +13,12 @@ pipeline {
             steps {
                 bat '''
                 echo =========================================
-                echo Deploying to EC2
+                echo Deploying Student Management to EC2
                 echo =========================================
 
-                scp -i "C:\\Jenkins\\Keys\\student-management-key.pem" -o StrictHostKeyChecking=no -r * ec2-user@52.205.214.136:/home/ec2-user/student-management
+                scp -o StrictHostKeyChecking=no -i "C:\\Jenkins\\Keys\\student-management-key.pem" -r * ec2-user@52.205.214.136:/home/ec2-user/student-management
 
-                ssh -i "C:\\Jenkins\\Keys\\student-management-key.pem" -o StrictHostKeyChecking=no ec2-user@52.205.214.136 "echo Deployment completed"
+                ssh -o StrictHostKeyChecking=no -i "C:\\Jenkins\\Keys\\student-management-key.pem" ec2-user@52.205.214.136 "echo Deployment completed successfully"
                 '''
             }
         }
